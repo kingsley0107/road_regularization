@@ -1,0 +1,12 @@
+/db_conn.py
+/boundary/
+/raw_road/
+**/__pycache__/
+.idea/
+*.pyc
+**/*.pyc
+*.ipynb
+**.ipynb
+/road_data/
+/common_utils/
+/proj_utils
