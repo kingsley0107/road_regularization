@@ -2,7 +2,9 @@
 ### Simplification of main road network for cities that do not require high precision for land subdivision, etc.
 
 ### Performance:
+#### raw road data
 - ![overview](./img/micro_raw.png)
+#### simplified road data
 - ![overview](./img/micro_process.png)
 
 
