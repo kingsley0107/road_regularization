@@ -1,6 +1,11 @@
 # road_geo_regularization
 ### Simplification of main road network for cities that do not require high precision for land subdivision, etc.
 
+### Performance:
+- ![overview](./img/micro_raw.png)
+- ![overview](./img/micro_process.png)
+
+
 ### Environment:
 - Arcgis Pro
 - Python 3.x from Arcgis Pro 
