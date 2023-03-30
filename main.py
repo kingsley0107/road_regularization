@@ -17,20 +17,22 @@ def start_process(CITY:str,mode:str = 'divided',smooth_level:int = 30,extend_dis
     if mode not in ['divided','mixed']:
         raise ValueError("😅Invalid mode. Must be 'divided' or 'mixed'.😅")
     if mode == 'divided':
+        print("🙁 type divided is underfixing 🙁")
         res = divided_start(CITY,smooth_level = smooth_level,extend_distance=extend_distance,spike_keep=spike_keep)
     elif mode == 'mixed':
         res = mixed_start(CITY,smooth_level = smooth_level,extend_distance=extend_distance,spike_keep=spike_keep)
+
     return res
 
 
 if __name__ == '__main__':
     # MODE: 'mixed' | 'divided'
-    MODE ='divided'
-    for i in ['changzhou']:
+    MODE ='mixed'
+    for i in ['westminster']:
         print(f"😈😈😈😈😈            Begin process {i}                     😈😈😈😈😈")
         print(f"😈😈😈😈😈            MODE: {MODE}                                😈😈😈😈😈")
         start_time = time.time()
-        output_path = start_process(i,MODE,smooth_level = 30,extend_distance=100,spike_keep=500)
+        output_path = start_process(i,MODE,smooth_level = 10,extend_distance=100,spike_keep=50)
         # output_path = start_process(i,'mixed',smooth_level = 30,extend_distance=100,spike_keep=500)
         print(f"🤭🤭🤭🤭🤭            {i} processed                             🤭🤭🤭🤭🤭")
         print(f"🎉🎉🎉🎉🎉            time used: {time.time()- start_time}  🎉🎉🎉🎉🎉")
