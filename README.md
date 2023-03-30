@@ -16,9 +16,8 @@
 - Encoding utf-8_sig
 
 ### 所需数据：
-- OSM路网数据
-- QQ路网数据
-- 目标城市行政边界数据
+- 路网数据
+- boundary边界数据
 - 数据需要事先按照config.py路径放置，注意命名格式
 
 ### 说明书：
@@ -28,37 +27,70 @@
             - GDB文件路径(不存在会自动创建),所有步骤成功执行会自动清空GDB
             - 路网数据根目录(注意路网数据命名规则)
             - boundary数据根目录(注意命名规则)
-            - 简化后道路输出文件夹(OUTPUT_PATH)(.shp文件)
         - 道路类别：
-            - 目前道路类型选择主要以划分地块为目的，地块内部路网全部抛除，后续定制化精细路网处理时添加新类即可
-            - 当MODE为mixed时，不去区分高架桥、普通道路，全部类型同时简化，道路类型在config中配置：
-                - OSM_MAIN_FCLASS['motorway', 'trunk', 'primary', 'secondary', 'tertiary']
-                - QQ_MAIN_SUBTYPE: ['131184', '131491', '131489']
-            - 当MODE为divided时，区分高架桥、普通道路，OSM,QQ的道路需要分一次高架处理与一次普通道路处理，道路类型在config中配置：
-                - OSM_MAIN_FCLASS_NO_HIGH：['primary', 'secondary', 'tertiary']
-                - OSM_MAIN_FCLASS_HIGH = ['motorway', 'trunk']
-                - QQ_MAIN_SUBTYPE_NO_HIGH = ['131184', '131491', '131489']
-                - QQ_MAIN_SUBTYPE_HIGH = ['131332']
+            - 目前道路类型选择主要以划分地块为目的，参与简化的路网类别根据config.py中的ROAD_TYPE_FIELD进行筛选，后续定制化精细路网处理时在config.py添加新类即可
+
 2. 执行main.py
     - main.py启动函数start_process主要参数：
         - CITY: 城市名，注意命名需要与路网后缀相同(详见注释)
-        - MODE：简化方式，必须为'mixed'或'divided'其中一种
+        - MODE：简化方式，必须为'mixed'
         - smooth_level： 简化程度，值越高结果越平滑(失真)
         - extend_distance： 断头路延伸的距离，值越高，闭合的路网越多，(但会在不存在道路的地方伸出一条道路)
         - spike_keep： 清理毛细断头道路的阈值，道路长度低于这个threshold的都会被清除掉，值越高，道路越规整，但会使一些现实是断头路的道路消失
 
-### 整体处理思路：
-1.  preprocess：
-    - 路网裁剪
-    - select by attribute 
-2.  多转单:
-    - Merge qq & osm
-    - Buffer & Dissolve
-    - Extract Center lines
-3.  路网除杂：
-    - 拓扑检查(找出断头道路、验证连通性)
-    - 去除断头的琐碎道路
-    - centerline根据与raw_road的近似程度，重新sjoin要素属性
+### 路网简化原理：
+1.  Extract CenterLines
+    - ![load data](./img/process/load.jpg)
+        <p align="center">
+                <i>加载原始数据.</i>
+        </p>
+    - ![buffer road](./img/process/buffer.jpg)
+        <p align="center">
+            <i>对每条道路建立缓冲区.</i>
+        </p>
+    - ![dissolve road](./img/process/dissolve.jpg)
+        <p align="center">
+            <i>将重叠缓冲区合并(dissolve).</i>
+        </p>
+    - ![ extract ](./img/process/extract.jpg)
+        <p align="center">
+            <i>提取合并后缓冲区的中心线.</i>
+        </p>
+    - ![ res ](./img/process/step1res.jpg)
+    <p align="center">
+        <i>提取结果.</i>
+    </p>
+2.  路网优化:
+    - ![ res ](./img/process/extend.jpg)
+        <p align="center">
+            <i>非闭合道路延展(蓝色).</i>
+        </p>
+    - ![ res ](./img/process/spikep.jpg)
+        <p align="center">
+            <i>提取断头路(points).</i>
+        </p>    
+    - ![ res ](./img/process/threshold.jpg)
+            <p align="center">
+                <i>过滤长度低于threshold的毛刺道路(红色部分).</i>
+            </p>                 
+3.  路网空间信息重关联：
+    - ![ res ](./img/process/getinfo.jpg)
+    <p align="center">
+        <i>以简化后的道路建立缓冲区，加载原属路网数据准备进行信息赋值.</i>
+    </p>
+    
+    - ![ res ](./img/process/sjoinprinc.jpg)
+    <p align="center">
+        <i>对于某个缓冲区，匹配原路网的规则为选取缓冲区内最具代表性的道路(largest overlap).</i>
+    </p>
+    
+    - ![ res ](./img/process/sjoinprinc_2.jpg)
+        <p align="center">
+        <i>eg.该缓冲区内最具代表性道路为圈出道路.</i>
+    </p>
+4.  输出结果
+    - ![result](./img/process/res.jpg)
+
 
 ### 一个隐藏参数：
 在simplify.py的clean_spike函数中有一个keep_spike参数被隐藏起来了，不太常用。

@@ -10,3 +10,7 @@
 /road_data/
 /common_utils/
 /proj_utils
+/data/
+**.zip
+**.shp
+**.geojson
