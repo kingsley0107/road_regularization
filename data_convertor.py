@@ -40,9 +40,9 @@ def merge_arcpy_raw(arcpy_data_path, raw_data_path):
 
 
 # %%
-arcpy_res_path = r'../data/arcpy_data/arcpy_res.shp'
-raw_data_path = r'../data/测试路网数据/westminster_project.shp'
-output_path = '../data/clean/merged_data.shp'
+arcpy_res_path = r'C:\Users\20191\Desktop\github\road_regularization\data\arcpy_data\arcpy_res.shp'
+raw_data_path = r'C:\Users\20191\Desktop\github\road_regularization\data/测试路网数据/westminster_project.shp'
+output_path = r'C:\Users\20191\Desktop\github\road_regularization/data/clean/merged_data2.shp'
 
 merge_arcpy_raw(arcpy_res_path, raw_data_path).to_file(output_path)
 
