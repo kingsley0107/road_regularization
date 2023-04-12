@@ -4,9 +4,9 @@
 
 ### Performance:
 #### 原始路网
-- ![overview](./img/micro_raw.png)
+- ![overview](./img/micro_raw.jpg)
 #### 路网简化结果
-- ![overview](./img/micro_process.png)
+- ![overview](./img/micro_processed.jpg)
 
 
 ### 运行环境:
