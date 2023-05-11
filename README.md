@@ -1,100 +1,101 @@
-中文版              [English](./en.md)     
+English  [中文版](./zh-cn.md)  
 # road_geo_regularization
-### 通用的城市主要道路路网简化，可用于非高精度的地块划分等
+### A universal simplification of the main road network in the city, which can be used for non-high precision land division, etc.
 
 ### Performance:
-#### 原始路网
+#### raw road data
 - ![overview](./img/micro_raw.jpg)
-#### 路网简化结果
+#### simplified road data
 - ![overview](./img/micro_processed.jpg)
 
 
-### 运行环境:
+### Environment:
 - Arcgis Pro
 - Python 3.x from Arcgis Pro 
 - Arcpy from Arcgis Pro
 - Encoding utf-8_sig
 
-### 所需数据：
-- 路网数据
-- boundary边界数据
-- 数据需要事先按照config.py路径放置，注意命名格式
+### Required Data:
+- Road network data
+- Boundary data
+- Data needs to be placed in the path specified in config.py in advance, pay attention to the naming format
 
-### 说明书：
-1. 先在config/config.py里手动指定目录
-    - 配置项：
-        - ./config/config.py 需手动指定：
-            - GDB文件路径(不存在会自动创建),所有步骤成功执行会自动清空GDB
-            - 路网数据根目录(注意路网数据命名规则)
-            - boundary数据根目录(注意命名规则)
-        - 道路类别：
-            - 目前道路类型选择主要以划分地块为目的，参与简化的路网类别根据config.py中的ROAD_TYPE_FIELD进行筛选，后续定制化精细路网处理时在config.py添加新类即可
+### User Manual:
+1. Specify directories manually in config/config.py
 
-2. 执行main.py
-    - main.py启动函数start_process主要参数：
-        - CITY: 城市名，注意命名需要与路网后缀相同(详见注释)
-        - MODE：简化方式，必须为'mixed'
-        - smooth_level： 简化程度，值越高结果越平滑(失真)
-        - extend_distance： 断头路延伸的距离，值越高，闭合的路网越多，(但会在不存在道路的地方伸出一条道路)
-        - spike_keep： 清理毛细断头道路的阈值，道路长度低于这个threshold的都会被清除掉，值越高，道路越规整，但会使一些现实是断头路的道路消失
+    - Configuration options:
+        -  ./config/config.py needs to be manually specified:
+        -   GDB file path (automatically created if it doesn't exist), GDB will be automatically cleared if all steps are executed successfully
+        -   Road network data root directory (pay attention to the naming conventions of road network data)
+        -   Boundary data root directory (pay attention to the naming conventions)
+    -   Road types:
+        -   Currently, road types are selected mainly for the purpose of parcel division. The road network categories involved in the simplification are filtered based on the ROAD_TYPE_FIELD in config.py. You can add a new category in config.py for customized fine road network processing.
 
-### 路网简化原理：
+2.  Execute main.py
+
+    -   The main function start_process in main.py accepts the following parameters:
+        -   CITY: City name, ensure the naming is the same as the suffix of the road network (see comments for details)
+        -   MODE: Simplification mode, must be 'mixed'
+        -   smooth_level: Level of simplification, the higher the value, the smoother the result (distortion)
+        -   extend_distance: Distance of extending dead-end roads, the higher the value, the more closed road networks (but may extend a road where it does not exist)
+        -   spike_keep: Threshold for cleaning small spikes, roads with a length lower than this threshold will be removed, the higher the value, the more regular the roads, but it may remove roads that are actually dead-ends
+
+### Road Network Simplification Principle:
 1.  Extract CenterLines
     - ![load data](./img/process/load.jpg)
         <p align="center">
-                <i>加载原始数据.</i>
+                <i>load raw data.</i>
         </p>
     - ![buffer road](./img/process/buffer.jpg)
         <p align="center">
-            <i>对每条道路建立缓冲区.</i>
+            <i>build buffer for each line.</i>
         </p>
     - ![dissolve road](./img/process/dissolve.jpg)
         <p align="center">
-            <i>将重叠缓冲区合并(dissolve).</i>
+            <i>dissolve the buffers.</i>
         </p>
     - ![ extract ](./img/process/extract.jpg)
         <p align="center">
-            <i>提取合并后缓冲区的中心线.</i>
+            <i>Extract centerlines from merged buffers</i>
         </p>
     - ![ res ](./img/process/step1res.jpg)
     <p align="center">
-        <i>提取结果.</i>
+        <i>Extraction result.</i>
     </p>
-2.  路网优化:
+2.  road optimization:
     - ![ res ](./img/process/extend.jpg)
         <p align="center">
-            <i>非闭合道路延展(蓝色).</i>
+            <i>Extension of non-closed roads (in blue).</i>
         </p>
     - ![ res ](./img/process/spikep.jpg)
         <p align="center">
-            <i>提取断头路(points).</i>
+            <i>Extraction of dead-end roads (points).</i>
         </p>    
     - ![ res ](./img/process/threshold.jpg)
             <p align="center">
-                <i>过滤长度低于threshold的毛刺道路(红色部分).</i>
+                <i>Filtering small spikes (in red) with a length below the threshold.</i>
             </p>                 
-3.  路网空间信息重关联：
+3.  Road Network Spatial Information Re-association:：
     - ![ res ](./img/process/getinfo.jpg)
     <p align="center">
-        <i>以简化后的道路建立缓冲区，加载原属路网数据准备进行信息赋值.</i>
+        <i>Create buffers based on the simplified road network and load the original road network data for information assignment.</i>
     </p>
     
     - ![ res ](./img/process/sjoinprinc.jpg)
     <p align="center">
-        <i>对于某个缓冲区，匹配原路网的规则为选取缓冲区内最具代表性的道路(largest overlap).</i>
+        <i>For each buffer, the matching rule with the original road network is to select the most representative road within the buffer (largest overlap).</i>
     </p>
     
     - ![ res ](./img/process/sjoinprinc_2.jpg)
         <p align="center">
-        <i>eg.该缓冲区内最具代表性道路为圈出道路.</i>
+        <i>eg. The most representative road within this buffer is enclosed.</i>
     </p>
-4.  输出结果
+4.  output result
     - ![result](./img/process/res.jpg)
 
+### A Hidden Parameter:
+There is a hidden parameter called keep_spike in the clean_spike function in simplify.py, which is not commonly used.
 
-### 一个隐藏参数：
-在simplify.py的clean_spike函数中有一个keep_spike参数被隐藏起来了，不太常用。
+It may be useful when plotting data related to dead-end roads. If needed, you can manually set keep_spike to True.
 
-可能会在作图时需要用到断头路数据，若需要可手动将keep_spike改为True.
-
-断头点、断头线数据将会输出到结果路径中，分别命名'err_points.shp'及'err_lines.shp'
+The data for dead-end points and dead-end lines will be output to the result path, named 'err_points.shp' and 'err_lines.shp', respectively.
